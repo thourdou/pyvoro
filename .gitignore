@@ -1,0 +1,6 @@
+.vscode
+build/
+pyvoro/pyvoro.cpp
+*.pyc
+*.so
+*.egg-info
