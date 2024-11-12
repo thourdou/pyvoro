@@ -1,3 +1,4 @@
+from libcpp cimport bool
 from libcpp.vector cimport vector
 
 import numpy as _np
@@ -6,7 +7,7 @@ _np.import_array()
 
 cdef extern from "wrapper.h":
     void* container_poly_create(double ax_, double bx_, double ay_, double by_,
-        double az_, double bz_, int nx_, int ny_, int nz_, int px_, int py_, int pz_)
+        double az_, double bz_, int nx_, int ny_, int nz_, bool px_, bool py_, bool pz_)
     void put_walls(void* con, int nwalls, int* wids, double* wvalues)
     void compute_voronoi(void* container_poly_, int n_ , double* points, double* r,
         double* volumes, double* centers, int* cindex, vector[int]* cvalues)
@@ -250,15 +251,14 @@ cdef class Voronoi:
 
         # Check periodicity
         if periodic in (False, True):
-            self.periodicity = _np.array([periodic]*3, dtype=int)
+            self.periodicity = _np.array([periodic]*3, dtype=_np.bool_)
         else:
             # Unpack and cast. Will raise an error if not an iterable
             # User can specify longer arrays ... but not taken into account
-            self.periodicity = _np.array([
-                bool(periodic[0]),
-                bool(periodic[1]),
-                bool(periodic[2]),
-            ], dtype=int)
+            self.periodicity = _np.array(
+                [periodic[0],periodic[1],periodic[2]],
+                dtype=_np.bool_
+            )
         del periodic
 
         # Build the container object
@@ -318,52 +318,6 @@ cdef class Voronoi:
         cdef int[::1] cvals_view = <int[:self.cvalues.size()]> &self.cvalues[0]
         self.connectivity = (cindex, _np.asarray(cvals_view))
 
-        #self.faces = _np.asarray(fvalues)
-
-        """
-        # old API
-        cdef vector[double] vertex_positions
-        cdef void** lists = NULL
-        cdef vector[int]* vptr = NULL
-        for i in range(self.npoints):
-            py_cells[i]['volume'] = float(cell_get_volume(voronoi_cells[i]))
-            vertex_positions = cell_get_vertex_positions(voronoi_cells[i], xs[i], ys[i], zs[i])
-            cell_vertices = []
-            for j in range(vertex_positions.size() / 3 +1):
-                cell_vertices.append(_np.array(vertex_positions[3*j:3*j+3]) )
-            py_cells[i]['vertices'] = cell_vertices
-
-            lists = cell_get_vertex_adjacency(voronoi_cells[i])
-            adjacency = []
-            j = 0
-            while lists[j] != NULL:
-                py_vertex_adjacency = []
-                vptr = <vector[int]*>lists[j]
-                for k in range(vptr.size()):
-                    py_vertex_adjacency.append(int(deref(vptr)[k]))
-                del vptr
-                adjacency.append(py_vertex_adjacency)
-                j += 1
-            free(lists)
-            py_cells[i]['adjacency'] = adjacency
-
-            lists = cell_get_faces(voronoi_cells[i])
-            faces = []
-            j = 0
-            while lists[j] != NULL:
-                face_vertices = []
-                vptr = <vector[int]*>lists[j]
-                for k in range(vptr.size() - 1):
-                    face_vertices.append(int(deref(vptr)[k]))
-                faces.append({
-                    'adjacent_cell' : int(deref(vptr)[vptr.size() - 1]),
-                    'vertices' : face_vertices
-                })
-                del vptr
-                j += 1
-            free(lists)
-            py_cells[i]['faces'] = faces
-        #"""
 
     def __dealloc__(self):
         ''''''

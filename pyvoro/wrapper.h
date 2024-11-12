@@ -1,7 +1,7 @@
 #include <vector>
 
 void* container_poly_create(double ax_, double bx_, double ay_, double by_,
-  double az_, double bz_, int nx_, int ny_, int nz_, int px_, int py_, int pz_);
+  double az_, double bz_, int nx_, int ny_, int nz_, bool px_, bool py_, bool pz_);
 
 void put_walls(void* con, int nwalls, int* wids, double* wv);
 

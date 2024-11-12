@@ -5,10 +5,10 @@ using namespace voro;
 using namespace std;
 
 void* container_poly_create(double ax_, double bx_, double ay_, double by_,
-  double az_, double bz_, int nx_, int ny_, int nz_, int px_, int py_, int pz_) {
+  double az_, double bz_, int nx_, int ny_, int nz_, bool px_, bool py_, bool pz_) {
   
-  return (void*) new container_poly(ax_, bx_, ay_, by_, az_, bz_, nx_, ny_, nz_, (bool)px_,
-      (bool)py_, (bool)pz_, 8);
+  return (void*) new container_poly(ax_, bx_, ay_, by_, az_, bz_,
+    nx_, ny_, nz_, px_, py_, pz_, 8);
 }
 
 
